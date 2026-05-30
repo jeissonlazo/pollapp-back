@@ -2,6 +2,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+.env
+.env.local
+.env.*
+
 # Virtual environments
 .venv/
 .env/
