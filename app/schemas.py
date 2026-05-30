@@ -1,6 +1,38 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import date
 from typing import Optional, List
+
+
+# --- Grupos ---
+class GroupOut(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
+
+
+# --- Usuarios ---
+class UserCreate(BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: EmailStr
+    password: str
+    group_ids: Optional[List[int]] = []  # IDs de grupos a los que pertenece
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    is_active: bool
+    groups: List[GroupOut] = []
+
+    class Config:
+        from_attributes = True
 
 
 # --- Goles ---
