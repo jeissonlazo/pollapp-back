@@ -1,29 +1,32 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
 from app.database import get_db
 from app import models, schemas
+import bcrypt
+import hashlib
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    pre_hashed = hashlib.sha256(password.encode("utf-8")).hexdigest().encode("utf-8")
+    return bcrypt.hashpw(pre_hashed, bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    pre_hashed = hashlib.sha256(plain.encode("utf-8")).hexdigest().encode("utf-8")
+    return bcrypt.checkpw(pre_hashed, hashed.encode("utf-8"))
 
 
 # POST /users/ → crear usuario
 @router.post("/", response_model=schemas.UserOut, status_code=201)
 def create_user(user_in: schemas.UserCreate, db: Session = Depends(get_db)):
 
-    # Verificar duplicados
     if db.query(models.User).filter(models.User.username == user_in.username).first():
         raise HTTPException(status_code=400, detail="El username ya existe")
     if db.query(models.User).filter(models.User.email == user_in.email).first():
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    # Buscar grupos si se enviaron
     groups = []
     if user_in.group_ids:
         groups = db.query(models.Group).filter(
