@@ -10,14 +10,16 @@ user_groups = Table(
     Column("group_id", Integer, ForeignKey("groups.id"), primary_key=True),
 )
 
-
 class Group(Base):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, nullable=False)  # "Group A", "Group B"...
+    name = Column(String, nullable=False)
+    invite_code = Column(String, unique=True, nullable=False, index=True)
+    admin_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
-    users = relationship("User", secondary=user_groups, back_populates="groups")
+    admin = relationship("User", foreign_keys=[admin_id])
+    members = relationship("User", secondary=user_groups, back_populates="groups")
 
 
 class User(Base):

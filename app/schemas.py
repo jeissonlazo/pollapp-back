@@ -4,9 +4,26 @@ from typing import Optional, List
 
 
 # --- Grupos ---
+class GroupCreate(BaseModel):
+    name: str
+
+
 class GroupOut(BaseModel):
     id: int
     name: str
+    invite_code: str
+    admin_id: int
+    members: list["UserBase"] = []
+
+    class Config:
+        from_attributes = True
+
+
+class UserBase(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
 
     class Config:
         from_attributes = True
@@ -29,10 +46,11 @@ class UserOut(BaseModel):
     last_name: str
     email: str
     is_active: bool
-    groups: List[GroupOut] = []
+    groups: list[GroupOut] = []
 
     class Config:
         from_attributes = True
+GroupOut.model_rebuild()
 
 
 # --- Goles ---
